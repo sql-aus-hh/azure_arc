@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sshRSAPublicKey": {
+      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4IZejAdI14GLNzMGdcqg5fwocb8py7/sDHLIQG/tsAZbbMZ3W8TnmHKr/eS/wUdxhf1w6pVUoCBb5vtOsCGhYcUxr4BuPLx+S53NYrbSkXSfdDK6USwFcWn5Db6ikhQvIyLxFiCMmgOkxfShdg1XHoR/mz2zkXItFwjszbxUvcHRTrTRa9UvOZmdu3MLuuMl6/7olMmUcOU91VB2BjM1Cl2aEmdrsghk0kb9UbAVnZ5UBVs82GkP4McT8vZoQIvDhllTLiKuPTvtBPigfSwkqZPCytQk2ChjamscIf+NSvpyPb8GGogUehvn2r58GlaWHvUIjSbeBgf8+8KwVHRV69ho73vKRaRkuNMP2atOyqn2oPI60/8Ko1uLiU4DjGyaA6pDfO1mGMmFh/AcPiWlBRibnVS/UF8xz5kPAN5MSwt93j6FjuezcxH4iW1djMy4P1SlqDZemFBKA8yOmlLOLwn1ef97wzDwZ9C19WqQbrnD+1DMINZKUddZMcb+dVpkQ8dR+bHhUCmZDrH9R5crjTSMuP3avWGFWJjKJfnv3vQ293CCHgwVxqXbqAWp1y71Cnmha8Pewwxl9f4F7ovbXyi2ONT2306l/0z6nWLPSo0xr06o8YoHcx5qUhb96YteHp9R3yynl0zinnILn9LF/JCsIHjMCkaekkbMyScaROw== kuc\bpeters@KUC0073"
+    },
+    "spnClientId": {
+      "value": "ba0b0d40-6628-4946-916b-fbf38917ea6a"
+    },
+    "spnClientSecret": {
+      "value": "NRS-zbcN3zmBdz1VgY2g0aoPH6gJHAlu6d"
+    },
+    "spnTenantId": {
+      "value": "477cc7c3-4c7f-4a77-a017-41f5b2e30257"
+    },
+    "windowsAdminUsername": {
+      "value": "arcdemo"
+    },
+    "windowsAdminPassword": {
+      "value": "ArcPassword123!!"
+    },
+    "myIpAddress": {
+      "value": "188.136.251.249"
+    },
+    "logAnalyticsWorkspaceName": {
+      "value": "defaultworkspace-71f81b4f-ff1b-4926-8e59-5bd1d81272d3-eus"
+    },
+    "deploySQLMI": {
+      "value": false
+    },
+    "SQLMIHA": {
+      "value": false
+    },
+    "deployPostgreSQL": {
+      "value": false
+    },
+    "templateBaseUrl": {
+      "value": "https://raw.githubusercontent.com/microsoft/azure_arc/main/azure_arc_data_jumpstart/aks/arm_template/"
+    },
+    "kubernetesVersion": {
+      "value": "1.19.11"
+    },
+    "dnsPrefix": {
+      "value": "arcdata"
+    }
+  }
+}

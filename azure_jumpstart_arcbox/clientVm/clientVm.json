@@ -12,7 +12,7 @@
             "type": "string",
             "defaultValue": "ArcBox-Client",
             "metadata": {
-                "description": "The name of you Virtual Machine"
+                "description": "The name of your Virtual Machine"
             }
         },
         "windowsAdminUsername": {
@@ -24,9 +24,11 @@
         },
         "windowsAdminPassword": {
             "type": "securestring",
+            "minLength": 12,
+            "maxLength": 123,
             "defaultValue": "ArcPassword123!!",
             "metadata": {
-                "description": "Windows password for the Virtual Machine"
+                "description": "Password for Windows account. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character. The value must be between 12 and 123 characters long."
             }
         },
         "windowsOSVersion": {
@@ -84,7 +86,7 @@
             }
         },
         "spnClientSecret": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "Client secret of the service principal"
             }
@@ -99,15 +101,12 @@
                 "description": "Tenant id of the service principal"
             }
         },
-        "aksClusterName": {
-            "type": "string"
-        },
         "azdataUsername": {
             "type": "string",
             "defaultValue": "arcdemo"
         },
         "azdataPassword": {
-            "type": "string",
+            "type": "securestring",
             "defaultValue": "ArcPassword123!!"
         },
         "acceptEula": {
@@ -119,7 +118,7 @@
             "defaultValue": "registryUser"
         },
         "registryPassword": {
-            "type": "string",
+            "type": "securestring",
             "defaultValue": "registrySecret"
         },
         "arcDcName": {
@@ -129,18 +128,6 @@
         "mssqlmiName": {
             "type": "string",
             "defaultValue": "arcsqlmidemo"
-        },
-        "dockerRegistry": {
-            "type": "string",
-            "defaultValue": "mcr.microsoft.com"
-        },
-        "dockerRepository": {
-            "type": "string",
-            "defaultValue": "arcdata"
-        },
-        "dockerTag": {
-            "type": "string",
-            "defaultValue": "latest"
         },
         "postgresName": {
             "type": "string",
@@ -181,18 +168,20 @@
             "metadata": {
                 "description": "Name for the environment Azure Log Analytics workspace"
             }
-        }        
-
+        },
+        "templateBaseUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URL used for accessing templates and automation artifacts. Typically inherited from parent ARM template."
+            }
+        }
     },
     "variables": {
         "vmName": "[concat(parameters('vmName'))]",
         "publicIpAddressName": "[concat(parameters('vmName'), '-PIP' )]",
         "networkInterfaceName": "[concat(parameters('vmName'),'-NIC')]",
         "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
-        "osDiskType": "Premium_LRS",
-        "subnetAddressPrefix": "172.16.1.0/24",
-        "addressPrefix": "172.16.0.0/16",
-        "templateBaseUrl": "https://raw.githubusercontent.com/microsoft/azure_arc/main/azure_jumpstart_arcbox/"
+        "osDiskType": "Premium_LRS"
     },
     "resources": [
         {
@@ -202,7 +191,6 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
                 "[resourceId('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
             ],
             "properties": {
@@ -244,42 +232,6 @@
                             "destinationAddressPrefix": "*",
                             "destinationPortRange": "3389"
                         }
-                    },
-                    {
-                        "name": "allow_SQL_1433",
-                        "properties": {
-                            "priority": 1002,
-                            "protocol": "TCP",
-                            "access": "Allow",
-                            "direction": "Inbound",
-                            "sourceAddressPrefix": "[parameters('myIpAddress')]",
-                            "sourcePortRange": "*",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "1443"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2019-04-01",
-            "name": "[parameters('virtualNetworkName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[variables('addressPrefix')]"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "[parameters('subnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('subnetAddressPrefix')]",
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
                     }
                 ]
             }
@@ -320,7 +272,7 @@
                         "managedDisk": {
                             "storageAccountType": "[variables('osDiskType')]"
                         },
-                        "diskSizeGB": 512
+                        "diskSizeGB": 1024
                     },
                     "imageReference": {
                         "publisher": "MicrosoftWindowsServer",
@@ -339,7 +291,11 @@
                 "osProfile": {
                     "computerName": "[variables('vmName')]",
                     "adminUsername": "[parameters('windowsAdminUsername')]",
-                    "adminPassword": "[parameters('windowsAdminPassword')]"
+                    "adminPassword": "[parameters('windowsAdminPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": false
+                    }
                 }
             }
         },
@@ -361,14 +317,13 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[uri(variables('templateBaseUrl'), 'scripts/Bootstrap.ps1')]"
+                        "[uri(parameters('templateBaseUrl'), 'artifacts/Bootstrap.ps1')]"
                     ],
-                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File Bootstrap.ps1', ' -adminUsername ', parameters('windowsAdminUsername'), ' -spnClientId ', parameters('spnClientId'), ' -spnClientSecret ', parameters('spnClientSecret'), ' -spnTenantId ', parameters('spnTenantId'), ' -spnAuthority ', parameters('spnAuthority'), ' -subscriptionId ', subscription().subscriptionId, ' -clusterName ', parameters('aksClusterName'), ' -resourceGroup ', resourceGroup().name, ' -azdataUsername ', parameters('azdataUsername'), ' -azdataPassword ', parameters('azdataPassword'), ' -acceptEula ', parameters('acceptEula'), ' -registryUsername ', parameters('registryUsername'), ' -registryPassword ', parameters('registryPassword'), ' -arcDcName ', parameters('arcDcName'), ' -azureLocation ', parameters('location'), ' -mssqlmiName ', parameters('mssqlmiName'), ' -dockerRegistry ', parameters('dockerRegistry'), ' -dockerRepository ', parameters('dockerRepository'), ' -dockerTag ', parameters('dockerTag'), ' -POSTGRES_NAME ', parameters('postgresName'), ' -POSTGRES_WORKER_NODE_COUNT ', parameters('postgresWorkerNodeCount'), ' -POSTGRES_DATASIZE ', parameters('postgresDatasize'), ' -POSTGRES_SERVICE_TYPE ', parameters('postgresServiceType'), ' -stagingStorageAccountName ', parameters('stagingStorageAccountName'), ' -workspaceName ', parameters('workspaceName')) ]"
+                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File Bootstrap.ps1', ' -adminUsername ', parameters('windowsAdminUsername'), ' -spnClientId ', parameters('spnClientId'), ' -spnClientSecret ', parameters('spnClientSecret'), ' -spnTenantId ', parameters('spnTenantId'), ' -spnAuthority ', parameters('spnAuthority'), ' -subscriptionId ', subscription().subscriptionId, ' -resourceGroup ', resourceGroup().name, ' -azdataUsername ', parameters('azdataUsername'), ' -azdataPassword ', parameters('azdataPassword'), ' -acceptEula ', parameters('acceptEula'), ' -registryUsername ', parameters('registryUsername'), ' -registryPassword ', parameters('registryPassword'), ' -arcDcName ', parameters('arcDcName'), ' -azureLocation ', parameters('location'), ' -mssqlmiName ', parameters('mssqlmiName'), ' -POSTGRES_NAME ', parameters('postgresName'), ' -POSTGRES_WORKER_NODE_COUNT ', parameters('postgresWorkerNodeCount'), ' -POSTGRES_DATASIZE ', parameters('postgresDatasize'), ' -POSTGRES_SERVICE_TYPE ', parameters('postgresServiceType'), ' -stagingStorageAccountName ', parameters('stagingStorageAccountName'), ' -workspaceName ', parameters('workspaceName'), ' -templateBaseUrl ', parameters('templateBaseUrl'))]"
                 }
             }
         }
     ],
-
 
     "outputs": {
         "adminUsername": {

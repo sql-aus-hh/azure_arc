@@ -23,15 +23,37 @@ Hop over to the [Jumpstart Scenarios](https://azurearcjumpstart.io/azure_arc_jum
 
 > **Disclaimer: The intention for the Azure Arc Jumpstart project is to focus on the core Azure Arc capabilities, deployment scenarios, use-cases, and ease of use. It does not focus on Azure best-practices or the other tech and OSS projects being leveraged in the scenarios and code.**
 
+## Jumpstart ArcBox
+
+Have you ever wanted to have a complete Azure Arc environment with just one click? We've got you covered with ArcBox!
+
+[ArcBox](https://azurearcjumpstart.io/azure_jumpstart_arcbox/) is a dedicated sandbox environment for exploring all things Azure Arc, and the best part is that the only prerequisite is an Azure subscription. With a one-click deployment, you get a full Azure Arc lab packed with technology including Azure Arc-enabled Servers, Kubernetes, Data Services and much more. Check out ArcBox today and start exploring a comprehensive hybrid sandbox powered by Azure Arc.
+
+<p align="center"><a href="https://azurearcjumpstart.io/azure_jumpstart_arcbox/" target="_blank"><img src="/img/arcbox_logo.png" alt="jumpstart-arcbox-logo" width="250"></a></p>
+
 ## Jumpstart YouTube Channel
 
 We know you are busy and sometimes all you need is just a good, short, solid recorded demo and we hope that here you will be able to find just that.
 
 All the demos in the [Azure Arc Jumpstart YouTube channel](https://aka.ms/AzureArcJumpstartDemos) are "bite-size" versions of the Azure Arc Jumpstart written scenarios we have on our website so make sure to check those as well.
 
+<p align="center"><a href="https://www.youtube.com/channel/UCoIJw-P_9Jp6Jo_0Ca9avcA" target="_blank"><img src="/img/jumpstart_demos_logo.png" alt="jumpstart-demos-logo" width="250"></a></p>
+
 Oh, and one last thing before you go. Please consider subscribing to the channel so you will know when we have a new awesome demo for you!
 
 Enjoy!
+
+## Jumpstart Lighting
+
+Jumpstart Lightning is the show where you get a chance to share with our team and the world your Azure Arc, Jumpstart contribution and Hybrid cloud awesome stories. Who knows?! You might find yourself on our YouTube channel!
+
+<p align="center"><a href="https://www.youtube.com/playlist?list=PLZuSmETs0xIagjkwrufUkBbex7RPJV4n5" target="_blank"><img src="/img/jumpstart_lightning_logo.png" alt="jumpstart-lightning-logo" width="250"></a></p>
+
+* Are you an awesome Azure Arc customer or a Microsoft partner that has an awesome story you would like to talk about?!
+* Ever contributed to the Jumpstart project and want to share it with the world?!
+* Do you have a unique Azure Arc demo and content to show-off?!
+
+What are you waiting for?! [Fill the submission form](https://forms.office.com/r/cyg2DduG1W) and if it’s snazzy enough, you will be hearing from us soon.
 
 ## Azure Arc Overview
 
@@ -41,7 +63,7 @@ For customers who want to simplify complex and distributed environments across o
 
 * **Manage Kubernetes Apps at scale** - Deploy and manage Kubernetes applications across environments using DevOps techniques. Ensure that applications are deployed and configured from source control consistently.
 
-* **Run data services anywhere** - Get automated patching, upgrades, security and scale on-demand across on-premises, edge and multi-cloud environments for your data estate.
+* **Run Azure services anywhere** - Get automated patching, upgrades, security and scale on-demand across on-premises, edge and multi-cloud environments for your data estate.
 
 ## Azure Arc Story Time
 

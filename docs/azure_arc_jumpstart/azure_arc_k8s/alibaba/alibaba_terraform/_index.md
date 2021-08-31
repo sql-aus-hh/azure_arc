@@ -38,13 +38,13 @@ The following README will guide you on how to use the provided [Terraform](https
   aliyun --version
   ```
 
-* [Install Terraform >=0.12](https://learn.hashicorp.com/terraform/getting-started/install.html). Use the below command to check your current installed version.
+* [Install Terraform >=1.0](https://learn.hashicorp.com/terraform/getting-started/install.html). Use the below command to check your current installed version.
 
   ```shell
   terraform -v
   ```
 
-* [Enable Azure subscription with](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) the two resource providers for Azure Arc enabled Kubernetes. Registration is an asynchronous process, and registration may take approximately 10 minutes. Login with an identity with sufficient authorizations.
+* [Enable Azure subscription with](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) the two resource providers for Azure Arc-enabled Kubernetes. Registration is an asynchronous process, and registration may take approximately 10 minutes. Login with an identity with sufficient authorizations.
 
   ```shell
   az login
@@ -140,17 +140,26 @@ The only thing you need to do before executing the Terraform plan is to export t
   ![terraform deploy output](./06.png)
   ![terraform deploy output](./07.png)
 
-  > **Note: The deprecation warnings are caused by the Terraform module used and can be ignored at this point.**
 
   Sample cluster in Alibaba Cloud Resource Management view:
 
   ![Alibaba Cloud Resource Management](./08.png)
 
-* The plan will create the _kubeconfig_ file in the home directory `~/.kube/config` to be used with `kubectl` or `helm`.
+* The plan will create the _kubeconfig_ file in the home directory `~/.kube/config_alicloudArc`. You can either use this directly or merge it into your _kubeconfig_ to be used with `kubectl` or `helm`.
 
    ```shell
-   chmod go-r ~/.kube/config
+   cp ~/.kube/config ~/.kube/config_old
+   KUBECONFIG=~/.kube/config_old:~/.kube/config_alicloudArc kubectl config view --flatten > ~/.kube/config
    ```
+
+  Get the name of your newly generated kubeconfig:
+  ```shell
+  kubectl config get-contexts
+  ```
+  Use the newly generated kubeconfig:
+  ```shell
+  kubectl config use-context <new config name>
+  ```
 
 ## Connecting to Azure Arc
 

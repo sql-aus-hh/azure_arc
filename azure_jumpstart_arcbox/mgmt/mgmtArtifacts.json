@@ -2,6 +2,20 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "ArcBox-VNet",
+      "metadata": {
+        "description": "Name of the VNet"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "ArcBox-Subnet",
+      "metadata": {
+        "description": "Name of the subnet in the virtual network"
+      }
+    },
     "workspaceName": {
       "type": "string",
       "metadata": {
@@ -21,6 +35,12 @@
       "metadata": {
         "description": "SKU, leave default pergb2018"
       }
+    },
+    "templateBaseUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "The base URL used for accessing templates and automation artifacts. Typically inherited from parent ARM template."
+      }
     }
   },
   "variables": {
@@ -28,11 +48,46 @@
       "name": "[concat('Updates', '(', parameters('workspaceName'), ')')]",
       "galleryName": "Updates"
     },
-    "templateBaseUrl": "https://raw.githubusercontent.com/microsoft/azure_arc/main/azure_jumpstart_arcbox/",
-    "policyTemplate": "[uri(variables('templateBaseUrl'), 'mgmt/policyAzureArcBuiltins.json')]",
-    "automationAccountName": "[concat('ArcBox-Automation-', uniquestring(resourceGroup().id))]"
+    "ChangeTracking": {
+      "name": "[concat('ChangeTracking', '(', parameters('workspaceName'), ')')]",
+      "galleryName": "ChangeTracking"
+    },
+    "Security": {
+      "name": "[concat('Security', '(', parameters('workspaceName'), ')')]",
+      "galleryName": "Security"
+    },
+    "policyTemplate": "[uri(parameters('templateBaseUrl'), 'mgmt/policyAzureArcBuiltins.json')]",
+    "monitorWorkbookTemplate": "[uri(parameters('templateBaseUrl'), 'mgmt/mgmtMonitorWorkbook.json')]",
+    "dashboardTemplate": "[uri(parameters('templateBaseUrl'), 'mgmt/mgmtDashboard.json')]",
+    "automationAccountName": "[concat('ArcBox-Automation-', uniquestring(resourceGroup().id))]",
+    "subnetAddressPrefix": "172.16.1.0/24",
+    "addressPrefix": "172.16.0.0/16",
+    "automationAccountLocation": "[if(equals(parameters('location'), 'eastus'), 'eastus2', if(equals(parameters('location'), 'eastus2'), 'eastus', parameters('location')))]"
   },
   "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-04-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetAddressPrefix')]",
+              "privateEndpointNetworkPolicies": "Enabled",
+              "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+          }
+        ]
+      }
+    },
     {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-03-01-preview",
@@ -64,10 +119,55 @@
       }
     },
     {
+      "apiVersion": "2015-11-01-preview",
+      "type": "Microsoft.OperationsManagement/solutions",
+      "location": "[parameters('location')]",
+      "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+      },
+      "plan": {
+        "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
+        "product": "[concat('OMSGallery/', 'VMInsights')]",
+        "promotionCode": "",
+        "publisher": "Microsoft"
+      }
+    },
+    {
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "name": "[variables('ChangeTracking').name]",
+      "location": "[parameters('location')]",
+      "plan": {
+        "name": "[concat('ChangeTracking', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
+        "promotionCode": "",
+        "product": "[concat('OMSGallery/', variables('ChangeTracking').galleryName)]",
+        "publisher": "Microsoft"
+      },
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+      }
+    },
+    {
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "name": "[variables('Security').name]",
+      "location": "[parameters('location')]",
+      "plan": {
+        "name": "[concat('ChangeTracking', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
+        "promotionCode": "",
+        "product": "[concat('OMSGallery/', variables('Security').galleryName)]",
+        "publisher": "Microsoft"
+      },
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+      }
+    },
+    {
       "type": "Microsoft.Automation/automationAccounts",
       "apiVersion": "2020-01-13-preview",
       "name": "[variables('automationAccountName')]",
-      "location": "[parameters('location')]",
+      "location": "[variables('automationAccountLocation')]",
       "dependsOn": [
         "[parameters('workspaceName')]"
       ],

@@ -55,7 +55,7 @@ In this guide, you will hook the GKE cluster to Azure Monitor by deploying the [
     }
     ```
 
-    > **Note: It is optional but highly recommended to scope the SP to a specific [Azure subscription and resource group](https://docs.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest)**
+    > **Note: The Jumpstart scenarios are designed with as much ease of use in-mind and adhering to security-related best practices whenever possible. It is optional but highly recommended to scope the service principal to a specific [Azure subscription and resource group](https://docs.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest) as well considering using a [less privileged service principal account](https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices)**
 
 ## Azure Monitor for Containers Integration
 
@@ -63,9 +63,9 @@ In this guide, you will hook the GKE cluster to Azure Monitor by deploying the [
 
 * Before integrating the cluster with Azure Monitor for Containers, click on the "Insights (preview)" blade for the connected Arc cluster to show how the cluster is not currently being monitored.
 
-    ![Screenshot showing Azure Portal with Azure Arc enabled Kubernetes resource](./01.png)
+    ![Screenshot showing Azure Portal with Azure Arc-enabled Kubernetes resource](./01.png)
 
-    ![Screenshot showing Azure Portal with Azure Arc enabled Kubernetes resource Insights](./02.png)
+    ![Screenshot showing Azure Portal with Azure Arc-enabled Kubernetes resource Insights](./02.png)
 
 * Edit the environment variables in the script to match your environment parameters, upload it to the Cloud Shell environment and run it using the ```. ./gke_monitor_onboarding.sh``` command.
 

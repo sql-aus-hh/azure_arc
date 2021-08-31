@@ -36,9 +36,9 @@ By doing so, you will be able to make real-time changes to the application and s
 
 * As mentioned, this guide starts at the point where you already have a connected AKS cluster to Azure Arc.
 
-    ![Existing Azure Arc enabled Kubernetes cluster](./01.png)
+    ![Existing Azure Arc-enabled Kubernetes cluster](./01.png)
 
-    ![Existing Azure Arc enabled Kubernetes cluster](./02.png)
+    ![Existing Azure Arc-enabled Kubernetes cluster](./02.png)
 
 * [Install or update Azure PowerShell modules](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-5.6.0). Use the below command to check your current installed version.
 
@@ -52,6 +52,20 @@ By doing so, you will be able to make real-time changes to the application and s
 
   ```shell
   az --version
+  ```
+
+* Enable subscription with the two resource providers for Azure Arc-enabled Kubernetes. Registration is an asynchronous process, and registration may take approximately 10 minutes.
+
+  ```PowerShell
+  Register-AzResourceProvider -ProviderNamespace Microsoft.Kubernetes
+  Register-AzResourceProvider -ProviderNamespace Microsoft.KubernetesConfiguration
+  ```
+
+  You can monitor the registration process with the following commands:
+
+  ```PowerShell
+  Get-AzResourceProvider -ProviderNamespace Microsoft.Kubernetes
+  Get-AzResourceProvider -ProviderNamespace Microsoft.KubernetesConfiguration
   ```
 
 * Create Azure service principal (SP)

@@ -9,7 +9,7 @@
       }
     },
     "sshRSAPublicKey": {
-      "type": "string",
+      "type": "securestring",
       "metadata": {
         "description": "RSA public key used for securing SSH access to ArcBox resources."
       }
@@ -21,7 +21,7 @@
       }
     },
     "spnClientSecret": {
-      "type": "string",
+      "type": "securestring",
       "metadata": {
         "description": "Azure service principal client secret"
       }
@@ -32,19 +32,6 @@
         "description": "Azure AD tenant id for your service principal"
       }
     },
-    "aksDnsPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "DNS prefix used for your AKS cluster"
-      }
-    },
-    "aksClusterName": {
-      "type": "string",
-      "defaultValue": "ArcBox-Data",
-      "metadata": {
-        "description": "Name for the AKS cluster"
-      }
-    },
     "windowsAdminUsername": {
       "type": "string",
       "metadata": {
@@ -52,9 +39,11 @@
       }
     },
     "windowsAdminPassword": {
-      "type": "string",
+      "type": "securestring",
+      "minLength": 12,
+      "maxLength": 123,
       "metadata": {
-        "description": "Password for Windows account"
+        "description": "Password for Windows account. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character. The value must be between 12 and 123 characters long."
       }
     },
     "logAnalyticsWorkspaceName": {
@@ -66,8 +55,8 @@
   },
   "variables": {
     "templateBaseUrl": "https://raw.githubusercontent.com/microsoft/azure_arc/main/azure_jumpstart_arcbox/",
-    "aksTemplateUrl": "[uri(variables('templateBaseUrl'), 'kubernetes/aks.json')]",
     "rancherTemplateUrl": "[uri(variables('templateBaseUrl'), 'kubernetes/ubuntuRancher.json')]",
+    "capiTemplateUrl": "[uri(variables('templateBaseUrl'), 'kubernetes/ubuntuCapi.json')]",
     "clientVmTemplateUrl": "[uri(variables('templateBaseUrl'), 'clientVm/clientVm.json')]",
     "mgmtTemplateUrl": "[uri(variables('templateBaseUrl'), 'mgmt/mgmtArtifacts.json')]",
     "mgmtStagingStorageUrl": "[uri(variables('templateBaseUrl'), 'mgmt/mgmtStagingStorage.json')]"
@@ -76,19 +65,20 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "aksDeployment",
+      "name": "ubuntuCAPIDeployment",
+      "dependsOn": [ "stagingStorageAccountDeployment" ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('aksTemplateUrl')]",
+          "uri": "[variables('capiTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "aksDnsPrefix": {
-            "value": "[parameters('aksDnsPrefix')]"
-          },
           "sshRSAPublicKey": {
             "value": "[parameters('sshRSAPublicKey')]"
+          },
+          "myIpAddress": {
+            "value": "[parameters('myIpAddress')]"
           },
           "spnClientId": {
             "value": "[parameters('spnClientId')]"
@@ -96,16 +86,14 @@
           "spnClientSecret": {
             "value": "[parameters('spnClientSecret')]"
           },
-          "azureLocation": {
-            "value": "[resourceGroup().location]"
+          "spnTenantId": {
+            "value": "[parameters('spnTenantId')]"
           },
-          "aksClusterName": {
-            "value": "[parameters('aksClusterName')]"
-          },       
-          "resourceTags": {
-            "value": {
-              "Project": "jumpstart_arcbox"
-            }
+          "stagingStorageAccountName": {
+            "value": "[reference('stagingStorageAccountDeployment').outputs.storageAccountName.value]"
+          },
+          "templateBaseUrl": {
+            "value": "[variables('templateBaseUrl')]"
           }
         }
       }
@@ -139,6 +127,12 @@
           },
           "stagingStorageAccountName": {
             "value": "[reference('stagingStorageAccountDeployment').outputs.storageAccountName.value]"
+          },
+          "logAnalyticsWorkspace": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
+          },   
+          "templateBaseUrl": {
+            "value": "[variables('templateBaseUrl')]"
           }
         }
       }
@@ -170,9 +164,6 @@
           "spnTenantId": {
             "value": "[parameters('spnTenantId')]"
           },
-          "aksClusterName": {
-            "value": "[parameters('aksClusterName')]"
-          },
           "myIpAddress": {
             "value": "[parameters('myIpAddress')]"
           },
@@ -181,6 +172,9 @@
           },          
           "stagingStorageAccountName": {
             "value": "[reference('stagingStorageAccountDeployment').outputs.storageAccountName.value]"
+          },
+          "templateBaseUrl": {
+            "value": "[variables('templateBaseUrl')]"
           }
         }
       }
@@ -210,6 +204,9 @@
         "parameters": {
           "workspaceName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
+          },
+          "templateBaseUrl": {
+            "value": "[variables('templateBaseUrl')]"
           }
         }
       }
